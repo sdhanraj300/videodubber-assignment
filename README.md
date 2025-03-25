@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+ANSI Text Formatter
+A web-based ANSI text formatter that allows users to style text using foreground colors, background colors, bold, and underline formatting. The formatted text is converted into ANSI escape codes that work with Discord and Rebane’s ANSI formatter.
 
-## Getting Started
+🚀 Features
+✅ ANSI Formatting (Discord Compatible) – Generates ANSI escape codes for text styling.
+✅ Foreground & Background Color Selection – Choose from a variety of colors.
+✅ Text Formatting Options – Supports Bold (\x1b[1m) and Underline (\x1b[4m).
+✅ Live Preview & Editable Text Box – Apply colors & styles interactively.
+✅ Copy ANSI Code with One Click – Easily copy formatted text for Discord or CLI.
+✅ Reset Button – Clear all applied formatting instantly.
+✅ Tooltip Feature – Hover over colors to see their names.
 
-First, run the development server:
+📦 Installation
+Clone the repository:
 
-```bash
+bash
+Copy
+Edit
+git clone https://github.com/your-username/ansi-text-formatter.git
+cd ansi-text-formatter
+Install dependencies:
+
+bash
+Copy
+Edit
+npm install
+Start the development server:
+
+bash
+Copy
+Edit
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open http://localhost:3000 in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🖥️ Usage
+Type your text in the editable text area.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Select text and click on:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+A foreground color to change text color.
 
-## Learn More
+A background color to apply a background.
 
-To learn more about Next.js, take a look at the following resources:
+Bold / Underline buttons for styling.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Reset button to remove all styles.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Click "Copy ANSI Text" to copy the formatted text.
 
-## Deploy on Vercel
+Paste it in Discord or any ANSI-compatible terminal.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+🎨 Supported Colors
+Foreground / Background	Code
+Black	30 / 40
+Red	31 / 41
+Green	32 / 42
+Yellow	33 / 43
+Blue	34 / 44
+Magenta	35 / 45
+Cyan	36 / 46
+White	37
+📸 Screenshots
+🔹 Live Preview & Color Selection
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🔹 Copy ANSI Code & Paste in Discord
+
+📜 License
+This project is MIT Licensed. Feel free to use and modify it.
+
+💡 Future Improvements
+✅ Add more text formatting options (e.g., italics, strikethrough).
+
+✅ Add ANSI color presets for quick styling.
+
+✅ Improve UI & UX for better usability.
+
+📬 Contact
+If you have any suggestions or issues, feel free to open an issue or contact me via:
+
+📧 Email: your-email@example.com
+🐦 Twitter: @yourhandle
+
+Star ⭐ this repository if you found it helpful! 🚀🔥
