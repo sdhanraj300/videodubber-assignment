@@ -1,103 +1,149 @@
-import Image from "next/image";
+"use client";
+import { useState, useRef, MouseEvent } from "react";
+import { Button, Group, Title, Container, Tooltip } from "@mantine/core";
+import { applyStyle } from "./utils";
+import { backgroundColors, colors } from "./utils/constants";
+
+interface StyleState {
+  st: number;
+  fg: number;
+  bg: number;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [copySuccess, setCopySuccess] = useState<boolean>(false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  
+  // Function to convert the HTML nodes to ANSI format
+  const nodesToANSI = (nodes: NodeListOf<ChildNode>, states: StyleState[]): string => {
+    let text = "";
+    for (const node of nodes) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        text += (node as Text).textContent;
+        continue;
+      }
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as HTMLElement;
+        if (element.nodeName === "BR") {
+          text += "\n";
+          continue;
+        }
+
+        const ansiCode = +(element.className.split("-")[1]);
+        const newState = Object.assign({}, states.at(-1));
+
+        if (ansiCode < 30) newState.st = ansiCode;
+        if (ansiCode >= 30 && ansiCode < 40) newState.fg = ansiCode;
+        if (ansiCode >= 40) newState.bg = ansiCode;
+
+        states.push(newState);
+
+        text += `\x1b[${newState.st};${(ansiCode >= 40) ? newState.bg : newState.fg}m`;
+        text += nodesToANSI(element.childNodes, states);
+
+        states.pop();
+        text += `\x1b[0m`;
+
+        if (states.at(-1)?.fg !== 2) text += `\x1b[${states.at(-1)?.st};${states.at(-1)?.fg}m`;
+        if (states.at(-1)?.bg !== 2) text += `\x1b[${states.at(-1)?.st};${states.at(-1)?.bg}m`;
+      }
+    }
+    return text;
+  };
+
+
+  //function to copy the text to the clipboard
+
+  const copyToClipboard = () => {
+    if (!contentRef.current) return;
+
+    const toCopy = "```ansi\n" + nodesToANSI(contentRef.current.childNodes, [{ st: 2, fg: 2, bg: 2 }]) + "\n```";
+    navigator.clipboard.writeText(toCopy);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
+
+  const resetFormatting = () => {
+    if (contentRef.current) {
+      contentRef.current.innerHTML = "";
+    }
+  };
+
+  const handleButtonClick = (e: MouseEvent<HTMLButtonElement>) => {
+    applyStyle(e);
+  };
+
+  return (
+    <Container size="md" px={200} py={50}>
+      <Title className="text-white">Create Your Text</Title>
+      <Group my={15}>
+        <Button color="gray" onClick={resetFormatting} data-ansi="0" className="button style-button">
+          Reset All
+        </Button>
+        <Button color="gray" onClick={handleButtonClick} data-ansi="1" className="button style-button ansi-1">
+          Bold
+        </Button>
+        <Button size="xs" color="gray" onClick={handleButtonClick} data-ansi="4" className="button style-button ansi-4">
+          Line
+        </Button>
+      </Group>
+
+      <Group my={15}>
+        <strong className="text-white">FG:</strong>
+        {colors.map((item) => (
+          <Tooltip key={item.code} label={item.name}>
+            <Button
+              data-ansi={item.code.slice(5).trim()}
+              className={`button style-button ${item.code}-bg`}
+              size="xs"
+              style={{ backgroundColor: item.color, color: "#fff" }}
+              onClick={handleButtonClick}
+            >
+              {""}
+            </Button>
+          </Tooltip>
+        ))}
+      </Group>
+
+      <Group my={15}>
+        <strong className="text-white">BG:</strong>
+        {backgroundColors.map((item) => (
+          <Tooltip key={item.code} label={item.name}>
+            <Button
+              data-ansi={item.code.slice(5).trim()}
+              className={`button style-button ${item.code}`}
+              size="xs"
+              style={{ backgroundColor: item.color, color: "#fff" }}
+              onClick={handleButtonClick}
+            >
+              {""}
+            </Button>
+          </Tooltip>
+        ))}
+      </Group>
+
+      <div
+        ref={contentRef}
+        contentEditable
+        className="editable-text text-white"
+        style={{
+          minHeight: "100px",
+          padding: "10px",
+          border: "1px solid #ccc",
+          marginTop: "10px",
+          outline: "none",
+        }}
+        suppressContentEditableWarning
+      >
+        Type your text here...
+      </div>
+
+      <Group mt={20}>
+        <Button color={copySuccess ? "green" : "blue"} onClick={copyToClipboard}>
+          {copySuccess ? "Copied to Clipboard!" : "Copy as Discord Format"}
+        </Button>
+      </Group>
+    </Container>
   );
 }
